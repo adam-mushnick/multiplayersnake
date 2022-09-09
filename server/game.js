@@ -7,10 +7,10 @@ module.exports = {
 };
 
 function initGame() {
+  //state is object with player location data etc
   const state = createGameState();
   randomFood(state);
   return state;
-  console.log(state);
 }
 
 function createGameState() {

@@ -29,18 +29,16 @@ io.on('connection', (client) => {
   client.on('keydown', handleKeyDown);
   client.on('newGame', handleNewGame);
   client.on('joinGame', handleJoinGame);
+  client.on('rematch', handleRematch);
+  client.on('leaveRoom', handleLeaveRoom);
 
-  function handleJoinGame(roomName) {
-    const room = io.sockets.adapter.rooms[roomName];
-    let allUsers;
+  async function handleJoinGame(roomName) {
+    //grabs room associated with code
+    const room = io.sockets.adapter.rooms.get(roomName);
+
     if (room) {
-      //object is client, key is id for that user
-      allUsers = room.sockets;
-      console.log(allUsers);
-    }
-    let numClients = 0;
-    if (allUsers) {
-      numClients = Object.keys(allUsers).length;
+      //grab number of clients connected(should be 1)
+      numClients = room.size;
     }
     if (numClients === 0) {
       //this is an unknown room with no one waiting
@@ -52,22 +50,35 @@ io.on('connection', (client) => {
       return;
     }
     clientRooms[client.id] = roomName;
+
     client.join(roomName);
     client.number = 2;
     client.emit('init', 2);
+    //sends gamecode to player gamecode display
+    client.emit('gameCode', roomName);
 
     startGameInterval(roomName);
+  }
+
+  function handleRematch() {}
+
+  function handleLeaveRoom() {
+    // const room = io.sockets.adapter.rooms.get(roomName);
+    //reset state of room because game has ended
+    // state[roomName] = null;
+    // clearInterval(intervalId);
+    // console.log('game over');
+    // client.emit('leaveRoom');
   }
 
   function handleNewGame() {
     //use id generator to create room name
     let roomName = makeid(5);
-    // console.log(roomName);
     clientRooms[client.id] = roomName;
+    //client function shows gamecode on screen
     client.emit('gameCode', roomName);
 
     state[roomName] = initGame();
-
     client.join(roomName);
     client.number = 1;
     client.emit('init', 1);
@@ -97,6 +108,8 @@ io.on('connection', (client) => {
 });
 
 function startGameInterval(roomName) {
+  const room = io.sockets.adapter.rooms.get(roomName);
+
   const intervalId = setInterval(() => {
     const winner = gameLoop(state[roomName]);
     if (!winner) {
@@ -106,6 +119,7 @@ function startGameInterval(roomName) {
       //reset state of room because game has ended
       state[roomName] = null;
       clearInterval(intervalId);
+      console.log('game over');
     }
   }, 1000 / FRAME_RATE);
 }

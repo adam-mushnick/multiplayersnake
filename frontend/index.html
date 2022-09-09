@@ -11,7 +11,9 @@
     />
 
     <style>
-      #gameScreen {
+      #gameScreen,
+      #rematchBtn,
+      #leaveRoomBtn {
         display: none;
       }
     </style>
@@ -47,6 +49,16 @@
             <h1>Your game code is: <span id="gameCodeDisplay"></span></h1>
             <canvas id="canvas"></canvas>
           </div>
+        </div>
+        <div
+          class="d-flex flex-column align-items-center justify-content-start h-100"
+        >
+          <button type="submit" class="btn btn-success" id="rematchBtn">
+            Rematch?
+          </button>
+          <button type="submit" class="btn btn-failure" id="leaveRoomBtn">
+            Leave room?
+          </button>
         </div>
       </div>
     </section>

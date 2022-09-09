@@ -16,16 +16,22 @@ socket.on('gameOver', handleGameOver);
 socket.on('gameCode', handleGameCode);
 socket.on('unknownCode', handleUnknownCode);
 socket.on('tooManyPlayers', handleTooManyPlayers);
+socket.on('leaveRoom', reset);
 
+//grabbing dom elements
 const gameScreen = document.getElementById('gameScreen');
 const initialScreen = document.getElementById('initialScreen');
 const newGameBtn = document.getElementById('newGameBtn');
 const joinGameBtn = document.getElementById('joinGameBtn');
 const gameCodeInput = document.getElementById('gameCodeInput');
 const gameCodeDisplay = document.getElementById('gameCodeDisplay');
+const rematchBtn = document.getElementById('rematchBtn');
+const leaveRoomBtn = document.getElementById('leaveRoomBtn');
 
 newGameBtn.addEventListener('click', newGame);
 joinGameBtn.addEventListener('click', joinGame);
+rematchBtn.addEventListener('click', rematch);
+leaveRoomBtn.addEventListener('click', leaveRoom);
 
 function newGame() {
   socket.emit('newGame');
@@ -37,7 +43,17 @@ function joinGame() {
   const code = gameCodeInput.value;
   //emit joinGame event and send game code back to server
   socket.emit('joinGame', code);
+  console.log(code);
   init();
+}
+
+function rematch() {
+  socket.emit('rematch');
+}
+
+function leaveRoom() {
+  // socket.emit('leaveRoom');
+  // reset();
 }
 
 let canvas, ctx;
@@ -131,10 +147,14 @@ function handleGameOver(data) {
   } else {
     alert('You Lose!');
   }
+  //show rematch and leave room buttons
+  rematchBtn.style.display = 'block';
+  leaveRoomBtn.style.display = 'block';
 }
 
 function handleGameCode(gameCode) {
   gameCodeDisplay.innerText = gameCode;
+  console.log(gameCode);
 }
 
 function handleUnknownCode() {
@@ -152,4 +172,6 @@ function reset() {
   gameCodeInput.value = '';
   initialScreen.style.display = 'block';
   gameScreen.style.display = 'none';
+  rematchBtn.style.display = 'none';
+  leaveRoomBtn.style.display = 'none';
 }
